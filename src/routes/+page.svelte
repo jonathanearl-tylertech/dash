@@ -1,6 +1,9 @@
 <script>
+    import AddLink from "$lib/components/add-link.svelte";
     import AppCard from "$lib/components/app-card.svelte";
     import { apps } from "../lib/data/apps";
+	import { page } from '$app/stores';
+    console.log($page.data.apps);
 </script>
 
 <main class="flex flex-col max-w-4xl mx-auto box-border mt-10">
