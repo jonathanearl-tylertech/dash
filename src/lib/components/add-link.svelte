@@ -1,14 +1,32 @@
+<script>
+    import { page } from "$app/stores";
+    import { superForm } from "sveltekit-superforms/client";
+    const { form, constraints, enhance } = superForm($page.data.form, {
+        onResult: ({ result }) => {
+            if (result.status !== 200)
+                return;
+            const modal = document.querySelector("#add_app_modal");
+            modal?.removeAttribute("open");
+        },
+    });
+</script>
+
 <button
     class="btn"
     on:click={() => {
-        // @ts-ignore
-        add_app_modal.showModal();
+        const modal = document.querySelector("#add_app_modal");
+        modal?.setAttribute("open", "true");
     }}>Add Link</button
 >
 <dialog id="add_app_modal" class="modal">
     <div class="modal-box">
-        <h3 class="font-bold text-lg">Add App</h3>
-        <form class="flex flex-col gap-2" method="POST" action="?/add-link">
+        <h3 class="font-bold text-lg">Add Application</h3>
+        <form
+            class="flex flex-col gap-2"
+            method="POST"
+            action="?/add-link"
+            use:enhance
+        >
             <div class="form-control w-full">
                 <label class="label" for="name">
                     <span class="label-text">Name</span>
@@ -17,8 +35,9 @@
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Type here"
+                    value={$form.name ?? ""}
                     class="input input-bordered w-full"
+                    {...$constraints.name}
                 />
             </div>
             <div class="form-control w-full">
@@ -29,7 +48,7 @@
                     type="text"
                     id="description"
                     name="description"
-                    placeholder="Type here"
+                    value={$form.description ?? ""}
                     class="input input-bordered w-full"
                 />
             </div>
@@ -41,7 +60,7 @@
                     type="text"
                     id="url"
                     name="url"
-                    placeholder="Type here"
+                    value={$form.url ?? ""}
                     class="input input-bordered w-full"
                 />
             </div>
@@ -53,7 +72,7 @@
                     type="text"
                     id="icon"
                     name="icon"
-                    placeholder="Type here"
+                    value={$form.icon ?? ""}
                     class="input input-bordered w-full"
                 />
             </div>
@@ -65,22 +84,12 @@
                     type="text"
                     id="health"
                     name="health"
-                    placeholder="Type here"
+                    value={$form.health ?? ""}
                     class="input input-bordered w-full"
                 />
             </div>
             <button class="mt-2" type="submit">Save</button>
         </form>
-
-        <!-- {
-            name: "Proxmox",
-            icon: proxmoxIcon,
-            description: "Selfhost virtual machines on your server.",
-            docsUri: "",
-            link: "https://192.168.88.69:8006",
-            color: "bg-green-400",
-            time: "3s",
-        }, -->
     </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>

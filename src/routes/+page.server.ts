@@ -2,22 +2,53 @@ import type { Actions } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import type { PageServerLoad } from "./$types";
 import { getUser } from '$lib/server/oauth.js';
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms/server';
+import { AppSchema } from "$lib/schemas/apps";
 
 export const load: PageServerLoad = async (event) => {
     const user = await getUser(event);
     if (!user)
         throw redirect(302, '/signin');
 
-    const apps = db.all('SELECT rowid as id, * FROM apps');
+    const apps = await db.all('SELECT rowid as id, * FROM apps');
+    const form = await superValidate(AppSchema);
+
     return {
         apps,
         user,
+        form
     };
 }
 
 export const actions: Actions = {
-    "add-link": () => {
+    "add-link": async (event) => {
+        const user = await getUser(event);
+        console.log({ user })
+        if (!user)
+            return fail(401);
 
+        const form = await superValidate(event.request, AppSchema);
+        console.log({ form })
+        if (!form.valid)
+            return fail(400, { form })
+
+        await db.run(
+            'INSERT INTO apps (name, description, url, icon, health) VALUES (?, ?, ?, ?, ?)',
+            form.data.name,
+            form.data.description,
+            form.data.url,
+            form.data.icon,
+            form.data.health,
+        )
+
+        const apps = await db.all('SELECT rowid as id, * FROM apps');
+        console.log({ apps })
+
+        return {
+            apps,
+            user,
+            form
+        }
     }
 }

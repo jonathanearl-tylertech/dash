@@ -12,8 +12,8 @@
             <a class="btn btn-ghost normal-case text-xl" href="/">Dash</a>
         </div>
         <div class="navbar-end">
-            <AddLink />
             {#if $page.data.user}
+                <AddLink />
                 <div class="dropdown dropdown-end">
                     <!-- svelte-ignore a11y-no-noninteractive-tabindex a11y-label-has-associated-control -->
                     <label tabindex="0" class="btn btn-ghost btn-circle avatar">
