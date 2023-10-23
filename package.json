@@ -25,6 +25,8 @@
 	"type": "module",
 	"dependencies": {
 		"sqlite": "^5.0.1",
-		"sqlite3": "^5.1.6"
+		"sqlite3": "^5.1.6",
+		"jose": "^4.15.4",
+		"oauth4webapi": "^2.3.0"
 	}
 }
