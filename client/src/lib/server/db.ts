@@ -1,7 +1,6 @@
 import { env } from "$env/dynamic/private";
 import sqlite3 from "sqlite3";
 import { open } from 'sqlite'
-import type { App } from "$lib/schemas/apps";
 
 export const db = await open({
     filename: env.DB,
@@ -11,29 +10,7 @@ export const db = await open({
 seed();
 
 async function seed() {
-    const apps: App[] = [
-        {
-            id: 0,
-            name: "Proxmox",
-            icon: "/icons/proxmox.svg",
-            description: "Selfhost virtual machines on your server.",
-            url: "https://192.168.88.69:8006",
-        },
-        {
-            id: 1,
-            name: "CloudFlare",
-            icon: "/icons/cloudflare.svg",
-            description: "CDN and Name Server host",
-            url: "https://dash.cloudflare.com",
-        },
-        {
-            id: 2,
-            name: "Google Domains",
-            icon: "/icons/google-domains.png",
-            description: "Registrar.",
-            url: "https://domains.google.com/registrar",
-        },
-    ];
+    const { apps } = await import('../../data/apps');
     console.log('DROP TABLE IF EXISTS apps')
     await db.exec('DROP TABLE IF EXISTS apps')
 
