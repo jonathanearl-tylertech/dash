@@ -23,19 +23,19 @@
                                             app.color ?? ""
                                         } rounded-full`}
                                     />
-                                    <span class="text-xs"></span>
+                                    <span class="text-xs" />
                                 </span>
                                 <slot />
                             </p>
                         </div>
                         {#if app.icon}
-                        <img
-                            class="ml-2"
-                            width="48"
-                            height="48"
-                            src={app.icon}
-                            alt={app.name}
-                        />
+                            <img
+                                class="ml-2"
+                                width="48"
+                                height="48"
+                                src={app.icon}
+                                alt={app.name}
+                            />
                         {/if}
                     </div>
                 </a>
