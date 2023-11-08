@@ -16,14 +16,18 @@ spec:
     spec:
       containers:
       - name: dash
-        image: ghcr.io/whattheearl/dash:0.0.1
+        image: ghcr.io/jonathanearl-tylertech/dash:0.0.6
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: /first/second/health
+            port: 8080
+          failureThreshold: 5
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
       imagePullSecrets:
       - name: regcred
 ---
@@ -32,16 +36,15 @@ kind: Ingress
 metadata:
   name: dash-ingress
 spec:
-  ingressClassName: nginx
   rules:
   - host: dash.wte.sh
     http:
       paths:
-      - path: /
+      - path: /first/second
         pathType: Prefix
         backend:
           service:
-            name: dash-service
+            name:  dash-service
             port:
               number: 8080
 ---
