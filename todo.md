@@ -1,1 +1,3 @@
 - [ ] env var encryption
+- [ ] add logging
+- [ ] test auth
