@@ -1,11 +1,11 @@
 import { env } from '$env/dynamic/private';
-import jose, { type JWTPayload } from 'jose';
+import * as jose from 'jose'
 
 const ISSUER = 'dash';
 const AUDIENCE = 'dash';
 const EXPIRATION = '24h';
 
-export const encryptToken = async (payload: JWTPayload) => {
+export const encryptToken = async (payload: jose.JWTPayload) => {
     const { SESSION_SECRET } = env;
     const secret = jose.base64url.decode(SESSION_SECRET);
     const jwt = await new jose.EncryptJWT(payload)

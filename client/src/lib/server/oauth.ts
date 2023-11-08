@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/private";
 import type { RequestEvent } from "@sveltejs/kit";
-import oauth from 'oauth4webapi';
+import * as oauth from 'oauth4webapi';
 import { decryptToken, encryptToken } from "./jwe";
 import { base } from '$app/paths';
 import { redirect, type Handle } from '@sveltejs/kit';
@@ -117,6 +117,9 @@ const CODE_VERIFIER_COOKIE = 'code_verifier';
 const USER_CLAIMS_COOKIE = 'uc';
 
 export const useAuthHook: Handle = async ({ event, resolve }) => {
+    console.log('path', event.url.pathname)
+    if (event.url.pathname == `${base}/health`)
+        return new Response("healthy", { status: 200 })
     switch (event.url.pathname) {
         case `${base}/auth/signin`: {
             const { authorizationUrl, code_verifier } = await getAuthorizationUrl();
