@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: dash
-        image: ghcr.io/jonathanearl-tylertech/dash:0.0.6
+        image: ghcr.io/jonathanearl-tylertech/dash:0.0.8
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -27,7 +27,7 @@ spec:
             name: dash-secret
         readinessProbe:
           httpGet:
-            path: /first/second/health
+            path: /health
             port: 8080
           failureThreshold: 5
           initialDelaySeconds: 10
@@ -45,7 +45,7 @@ spec:
   - host: dash.wte.sh
     http:
       paths:
-      - path: /first/second
+      - path: /
         pathType: Prefix
         backend:
           service:
