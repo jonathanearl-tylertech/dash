@@ -20,6 +20,11 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: dash-config
+        - secretRef:
+            name: dash-secret
         readinessProbe:
           httpGet:
             path: /first/second/health

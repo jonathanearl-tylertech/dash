@@ -1,3 +1,5 @@
-- [ ] env var encryption
+- [x] env var encryption
+- [ ] automate versioning
+- [ ] automate deployment
 - [ ] add logging
 - [ ] test auth
