@@ -14,6 +14,7 @@ if (!building) {
 
 
 async function seed() {
+    console.info('DB:', env.DB)
     const { links } = await import('$lib/data/links');
     console.log('DROP TABLE IF EXISTS apps')
     await db.exec('DROP TABLE IF EXISTS apps')
