@@ -8,4 +8,4 @@ data:
   OAUTH_CLIENT_ID: 266251998613-ct1jjtidrt1q465s14prpp9evavv5osk.apps.googleusercontent.com
   OAUTH_CLIENT_REDIRECT: http://localhost:5173/auth/callback
   OAUTH_ISSUER_URL: https://accounts.google.com
-  DB: /app/sqlite.db
+  DB: /etc/dash/sqlite.db
