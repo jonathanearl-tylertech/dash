@@ -4,7 +4,7 @@ import type { PageServerLoad } from "./$types";
 import { getUser } from '$lib/server/oauth.js';
 import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms/server';
-import { AppSchema } from "$lib/schemas/apps";
+import { LinkSchema } from "$lib/data/links";
 
 export const load: PageServerLoad = async (event) => {
     const user = await getUser(event);
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async (event) => {
         throw redirect(302, '/signin');
 
     const apps = await db.all('SELECT rowid as id, * FROM apps');
-    const form = await superValidate(AppSchema);
+    const form = await superValidate(LinkSchema);
 
     return {
         apps,
@@ -28,7 +28,7 @@ export const actions: Actions = {
         if (!user)
             return fail(401);
 
-        const form = await superValidate(event.request, AppSchema);
+        const form = await superValidate(event.request, LinkSchema);
         console.log({ form })
         if (!form.valid)
             return fail(400, { form })
