@@ -1,5 +1,5 @@
 #! /usr/bin/make
-include .env
+VERSION=latest
 
 all: build publish version deploy
 
