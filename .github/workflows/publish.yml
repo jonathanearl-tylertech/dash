@@ -9,6 +9,5 @@ jobs:
         with:
           node-version: '14'
       - name: Build container
-        id: build
         run: |
-          echo "test"
+          make build
