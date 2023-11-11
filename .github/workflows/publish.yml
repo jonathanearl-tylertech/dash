@@ -5,6 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+      id-token: write
     steps:
       - uses: docker/login-action@v3
         with:
