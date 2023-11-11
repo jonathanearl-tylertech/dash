@@ -8,4 +8,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '14'
-      - run: make build && make publish
+      - run: |
+        echo $GITHUB_ACTIONS
+        make build && make publish
