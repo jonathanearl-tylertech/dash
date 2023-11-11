@@ -1,6 +1,5 @@
-export VERSION=latest
-export SOPS_AGE_KEY_FILE=~/.sops/age-key.txt
-
+#! /usr/bin/make
+include .env
 
 all: build publish version deploy
 
@@ -17,7 +16,6 @@ encrypt:
 	deployment/encrypt.sh
 
 version:
-	source .env
 	npm run semantic-release --prefix client
 
 deploy:
