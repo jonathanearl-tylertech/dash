@@ -17,7 +17,7 @@ jobs:
           node-version: '20'
       - name: Build container
         run: |
-          make build
-          make publish
+          docker build --tag ghcr.io/jonathanearl-tylertech/dash:$(VERSION) client
+	        docker push ghcr.io/jonathanearl-tylertech/dash:$(VERSION)
           npm ci --prefix client
-          make version
+          npm run semantic-release --prefix client
