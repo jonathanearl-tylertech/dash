@@ -10,4 +10,6 @@ jobs:
           node-version: '14'
       - name: Build container
         run: |
+          docker login -u jonathanearl-tylertech -p "$GITHUB_TOKEN" ghcr.io/jonathanearl-tylertech/dash
           make build
+          make publish
