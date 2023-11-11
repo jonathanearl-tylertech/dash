@@ -2,7 +2,7 @@ export VERSION=latest
 export SOPS_AGE_KEY_FILE=~/.sops/age-key.txt
 
 
-all: build publish deploy
+all: build publish version deploy
 
 build:
 	docker build --tag ghcr.io/jonathanearl-tylertech/dash:$(VERSION) client
@@ -17,6 +17,7 @@ encrypt:
 	deployment/encrypt.sh
 
 version:
+	source .env
 	npm run semantic-release --prefix client
 
 deploy:
