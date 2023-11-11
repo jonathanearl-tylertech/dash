@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: dash
-        image: ghcr.io/jonathanearl-tylertech/dash:0.0.9
+        image: ghcr.io/jonathanearl-tylertech/dash:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
