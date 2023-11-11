@@ -7,11 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Login to GitHub Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           node-version: '14'
       - name: Build container
         run: |
-          docker login -u jonathanearl-tylertech -p "$GITHUB_TOKEN" ghcr.io/jonathanearl-tylertech/dash
           make build
           make publish
