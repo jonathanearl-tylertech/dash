@@ -22,3 +22,5 @@ jobs:
           docker push ghcr.io/jonathanearl-tylertech/dash:latest
           npm ci --prefix client
           npm run semantic-release --prefix client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
