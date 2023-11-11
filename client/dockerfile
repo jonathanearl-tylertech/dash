@@ -8,7 +8,7 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /etc/dash
 COPY package*.json .
-RUN npm ci --production
+RUN npm ci --omit=dev
 COPY --from=builder /builder/build ./build
 COPY . .
 ENV PORT=8080
