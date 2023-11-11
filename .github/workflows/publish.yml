@@ -19,4 +19,5 @@ jobs:
         run: |
           make build
           make publish
+          npm ci --prefix client
           make version
