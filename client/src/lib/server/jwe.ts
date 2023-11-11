@@ -7,7 +7,7 @@ const EXPIRATION = '24h';
 
 export const encryptToken = async (payload: jose.JWTPayload) => {
     const { SESSION_SECRET } = env;
-    const secret = jose.base64url.decode(SESSION_SECRET);
+    const secret = jose.base64url.decode(SESSION_SECRET as string);
     const jwt = await new jose.EncryptJWT(payload)
         .setProtectedHeader({ alg: 'dir', enc: 'A128CBC-HS256' })
         .setIssuedAt()
@@ -19,11 +19,18 @@ export const encryptToken = async (payload: jose.JWTPayload) => {
 }
 
 export const decryptToken = async (jwt: string) => {
-    const { SESSION_SECRET } = env;
-    const secret = jose.base64url.decode(SESSION_SECRET);
-    const { payload } = await jose.jwtDecrypt(jwt, secret, {
-        issuer: ISSUER,
-        audience: AUDIENCE,
-    })
-    return payload;
+    try {
+        const { SESSION_SECRET } = env;
+        const secret = jose.base64url.decode(SESSION_SECRET as string);
+        const { payload } = await jose.jwtDecrypt(jwt, secret, {
+            issuer: ISSUER,
+            audience: AUDIENCE,
+        })
+        return payload;
+    }
+    catch (err) {
+        const error = err as { code: string, claim: string, reason: string };
+        console.info({ error, jwt })
+        return null;
+    }
 }

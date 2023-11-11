@@ -15,17 +15,17 @@ export interface UserClaims {
 }
 
 export const getAuthorizationUrl = async () => {
-    const issuer = new URL(env.OAUTH_ISSUER_URL)
+    const issuer = new URL(env.OAUTH_ISSUER_URL as string)
     const as = await oauth
         .discoveryRequest(issuer)
         .then(response => oauth.processDiscoveryResponse(issuer, response));
 
     const client: oauth.Client = {
-        client_id: env.OAUTH_CLIENT_ID,
-        client_secret: env.OAUTH_CLIENT_SECRET,
+        client_id: env.OAUTH_CLIENT_ID as string,
+        client_secret: env.OAUTH_CLIENT_SECRET as string,
         token_endpoint_auth_method: 'client_secret_basic',
     }
-    const redirect_uri = env.OAUTH_CLIENT_REDIRECT;
+    const redirect_uri = env.OAUTH_CLIENT_REDIRECT as string;
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
         // This example assumes S256 PKCE support is signalled
         // If it isn't supported, random `state` must be used for CSRF protection.
@@ -49,14 +49,14 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         throw new Error("Missing code_verifier");
     }
 
-    const issuer = new URL(env.OAUTH_ISSUER_URL)
+    const issuer = new URL(env.OAUTH_ISSUER_URL as string)
     const as = await oauth
         .discoveryRequest(issuer)
         .then(response => oauth.processDiscoveryResponse(issuer, response));
 
     const client: oauth.Client = {
-        client_id: env.OAUTH_CLIENT_ID,
-        client_secret: env.OAUTH_CLIENT_SECRET,
+        client_id: env.OAUTH_CLIENT_ID as string,
+        client_secret: env.OAUTH_CLIENT_SECRET as string,
         token_endpoint_auth_method: 'client_secret_basic',
     }
 
@@ -70,7 +70,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         as,
         client,
         parameters,
-        env.OAUTH_CLIENT_REDIRECT,
+        env.OAUTH_CLIENT_REDIRECT as string,
         code_verifier,
     )
 
@@ -100,10 +100,15 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
 
 export const getUser = async (event: RequestEvent) => {
     const userClaimToken = event.cookies.get('uc');
+    console.info({userClaimToken, method: 'getUser'});
     if (!userClaimToken)
         return null;
 
     const claims = await decryptToken(userClaimToken);
+    console.info({claims, method: 'getUser'});
+    if (!claims)
+        return null;
+
     return {
         sub: claims.sub as string,
         email: claims.email as string,
@@ -139,8 +144,6 @@ export const useAuthHook: Handle = async ({ event, resolve }) => {
             throw redirect(302, '/')
         }
         default: {
-            const user = await getUser(event);
-            event.locals.user = user;
             return resolve(event);
         }
     }

@@ -24,7 +24,6 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
     "add-link": async (event) => {
         const user = await getUser(event);
-        console.log({ user })
         if (!user)
             return fail(401);
 
