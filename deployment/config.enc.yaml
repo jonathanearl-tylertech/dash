@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: dash-config
+    namespace: default
+data:
+    SESSION_MAX_LENGTH: 24h
+    SESSION_SECRET: ENC[AES256_GCM,data:nZFUZT03jI7YO07ZWXZZwOAwALt4mK9gFuJcHCezjluOZko20x1xri94dw==,iv:jy4UsErUvvR09qlButf0OZxw3VXcWkHRZyaF2Pvcy8A=,tag:3zcQIWCVxJqEy0b7gi9K0Q==,type:str]
+    # https://console.cloud.google.com/apis/credentials/oauthclient/266251998613-ct1jjtidrt1q465s14prpp9evavv5osk.apps.googleusercontent.com?project=home-402119
+    OAUTH_CLIENT_ID: 266251998613-ct1jjtidrt1q465s14prpp9evavv5osk.apps.googleusercontent.com
+    OAUTH_CLIENT_SECRET: ENC[AES256_GCM,data:GmXE0UIMQDAwgx6oM84UaZ1Ihq97Nf/UIxk1ifStjPKaa24=,iv:ZJJ1JxYnUs3518hMhicf3lMhuTs8RtCb0SnItmsQGhQ=,tag:2dGB/YtoWFU8heppJJuERw==,type:str]
+    OAUTH_CLIENT_REDIRECT: https://dash.wte.sh/auth/callback
+    OAUTH_ISSUER_URL: https://accounts.google.com
+    DB: /etc/dash/sqlite.db
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age15l9w7204pax6tfgcmlzplvggn67cdgu6ppry4nhns0x73n2leucq5zknjp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBSVmVEUDNPTmlGMnFCUVpT
+            U3doa1ptb1VjTGZBQ2I4dVYzamcxWS9xeUZVCjRtbWI4UXFtUENqYmxLM2IvVWMw
+            bjVlSVQyRE5JdjN2M3VtbmViZWUvdXcKLS0tIDA2dzRTTWdxeE1LQ2MvNXhKa2s0
+            SDdMZHRjNXhocWtzblpFSkxudnhZc1UKoUvJskUxa4uBlAdH/IIdO1woX+zmdFaz
+            pGo+zuohjGVm3Yoh/ubSr8zzS52KMaFHRwYNfAUuQrlQN2AxVG7ONQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-11-11T22:40:03Z"
+    mac: ENC[AES256_GCM,data:Ys4aRdMmEQIoUgATTnrw+3gA45QWwCbBnAm/FVjr2TVAeHxJ8zAUVcE0TvRnDoUfnuMlk/ifzhzAQQy8X8FtNk0C+tiYDFiXdQ2pilC/xcrv7uRV4aKMgF2CAvbyQkZr4YoqjU2jq7t2ytE8o4bfo23wqGRoCPv9ThULA5KKC2U=,iv:5uQia4MoStA5IEquEVkeAIDcbEI5kx8zwmDRiGA631U=,tag:xvjs6SymJRUm3SFIl9lllg==,type:str]
+    pgp: []
+    encrypted_regex: ^(.*SECRET.*)$
+    version: 3.8.1
