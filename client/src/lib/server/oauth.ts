@@ -25,7 +25,7 @@ export const getAuthorizationUrl = async () => {
         client_secret: env.OAUTH_CLIENT_SECRET,
         token_endpoint_auth_method: 'client_secret_basic',
     }
-    const redirect_uri = 'http://localhost:5173/auth/callback';
+    const redirect_uri = env.OAUTH_CLIENT_REDIRECT;
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
         // This example assumes S256 PKCE support is signalled
         // If it isn't supported, random `state` must be used for CSRF protection.
