@@ -4,9 +4,9 @@ import { open } from 'sqlite'
 import { building } from "$app/environment";
 
 export const db = await open({
-    filename: env.DB,
+    filename: building ? 'NOT_IN_USE' : env.DB as string,
     driver: sqlite3.cached.Database
-})
+});
 
 if (!building) {
     seed()
