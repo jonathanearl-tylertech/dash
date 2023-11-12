@@ -23,7 +23,7 @@ jobs:
           TAG=$(git describe --tags --abbrev=0)
           if [ -z "$TAG" ]
           then
-            docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest client
+            docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$TAG client
             docker push ghcr.io/jonathanearl-tylertech/dash:latest
             docker push ghcr.io/jonathanearl-tylertech/dash:$TAG
           fi
