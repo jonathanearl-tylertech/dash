@@ -1,7 +1,6 @@
 - [x] env var encryption
-- [ ] automate versioning
-  - seperate publish pr from publish main?
-  - clean up pr containers
+- [x] automate versioning
+- [ ] automate ssl (dnsk)
 - [ ] automate deployment
 - [ ] add logging
 - [ ] test auth
