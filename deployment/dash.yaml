@@ -50,6 +50,10 @@ spec:
             name:  dash-service
             port:
               number: 8080
+  tls:
+  - hosts:
+    - dash.wte.sh
+    secretName: letsencrypt-staging
 ---
 apiVersion: v1
 kind: Service
