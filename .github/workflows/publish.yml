@@ -16,11 +16,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - name: Build container
+      - name: Build and publish container
         run: |
-          docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest client
-          docker push ghcr.io/jonathanearl-tylertech/dash:latest
           npm ci --prefix client
           npm run semantic-release --prefix client
+          TAG=$(git describe --tags --abbrev=0)
+          if [ -z "$TAG" ]
+          then
+            docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest client
+            docker push ghcr.io/jonathanearl-tylertech/dash:latest
+            docker push ghcr.io/jonathanearl-tylertech/dash:$TAG
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
