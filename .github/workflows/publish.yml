@@ -16,18 +16,17 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Versioning & Release Docs
+        run: |
+          npm i semantic-release@22 --prefix client
+          npm run semantic-release --prefix client
+          echo "VERSION_TAG=$(git tag --points-at HEAD)" >> "$GITHUB_ENV"
+          echo Set VERSION_TAG: $VERSION_TAG
       - name: Publish
         run: |
-          npm ci --prefix client
-          npm run semantic-release --prefix client
-          TAG=$(git describe --tags --abbrev=0)
-          echo Tag: is $TAG
-          if [ -z "$TAG" ]
-          then
-            echo "No version found"
-          else
-            docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$TAG client
-            docker push --all-tags ghcr.io/jonathanearl-tylertech/dash
-          fi
+          # Only run if VERSION_TAG exists
+          [ -z "$VERSION_TAG" ] && exit 0
+          docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$VERSION_TAG client
+          docker push --all-tags ghcr.io/jonathanearl-tylertech/dash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
