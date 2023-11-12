@@ -27,8 +27,7 @@ jobs:
             echo "No version found"
           else
             docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$TAG client
-            docker push ghcr.io/jonathanearl-tylertech/dash:latest
-            docker push ghcr.io/jonathanearl-tylertech/dash:$TAG
+            docker push --all-tags ghcr.io/jonathanearl-tylertech/dash
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
