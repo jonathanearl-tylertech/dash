@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - name: Build and publish container
+      - name: Publish
         run: |
           npm ci --prefix client
           npm run semantic-release --prefix client
