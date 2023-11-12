@@ -10,10 +10,10 @@ publish:
 	docker push ghcr.io/jonathanearl-tylertech/dash:$(VERSION)
 
 decrypt:
-	deployment/decrypt.sh
+	sops -d deployment/config.enc.yaml > deployment/config.yaml
 
 encrypt:
-	deployment/encrypt.sh
+	sops --encrypt --age ${SOPS_AGE_RECIPIENTS}  deployment/config.yaml > deployment/config.enc.yaml
 
 version:
 	npm run semantic-release --prefix client
