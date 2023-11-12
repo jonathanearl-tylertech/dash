@@ -24,6 +24,8 @@ jobs:
           echo Tag: is $TAG
           if [ -z "$TAG" ]
           then
+            echo "No version found"
+          else
             docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$TAG client
             docker push ghcr.io/jonathanearl-tylertech/dash:latest
             docker push ghcr.io/jonathanearl-tylertech/dash:$TAG
