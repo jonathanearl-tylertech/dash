@@ -22,11 +22,12 @@ jobs:
           npm run semantic-release --prefix client
           echo "VERSION_TAG=$(git tag --points-at HEAD)" >> "$GITHUB_ENV"
           echo Set VERSION_TAG: $VERSION_TAG
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish
         run: |
           # Only run if VERSION_TAG exists
           [ -z "$VERSION_TAG" ] && exit 0
           docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$VERSION_TAG client
           docker push --all-tags ghcr.io/jonathanearl-tylertech/dash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
