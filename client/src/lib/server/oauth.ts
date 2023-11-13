@@ -15,17 +15,18 @@ export interface UserClaims {
     picture: string | undefined;
 }
 
-export const getAuthorizationUrl = async () => {
-    const issuer = new URL(env.OAUTH_ISSUER_URL as string)
-    const as = await oauth
-        .discoveryRequest(issuer)
-        .then(response => oauth.processDiscoveryResponse(issuer, response));
+const issuer = new URL(env.OAUTH_ISSUER_URL as string)
+const as = await oauth
+    .discoveryRequest(issuer)
+    .then(response => oauth.processDiscoveryResponse(issuer, response));
 
-    const client: oauth.Client = {
-        client_id: env.OAUTH_CLIENT_ID as string,
-        client_secret: env.OAUTH_CLIENT_SECRET as string,
-        token_endpoint_auth_method: 'client_secret_basic',
-    }
+const client: oauth.Client = {
+    client_id: env.OAUTH_CLIENT_ID as string,
+    client_secret: env.OAUTH_CLIENT_SECRET as string,
+    token_endpoint_auth_method: 'client_secret_basic',
+}
+
+export const getAuthorizationUrl = async () => {
     const redirect_uri = env.OAUTH_CLIENT_REDIRECT as string;
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
         // This example assumes S256 PKCE support is signalled
@@ -46,21 +47,16 @@ export const getAuthorizationUrl = async () => {
 }
 
 export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
+    logger.debug({ method: 'getUserClaims', code_verifier, currentUrl });
+
     if (!code_verifier) {
         logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
         throw new Error("Missing code_verifier");
     }
 
-    const issuer = new URL(env.OAUTH_ISSUER_URL as string)
-    const as = await oauth
-        .discoveryRequest(issuer)
-        .then(response => oauth.processDiscoveryResponse(issuer, response));
-
-    const client: oauth.Client = {
-        client_id: env.OAUTH_CLIENT_ID as string,
-        client_secret: env.OAUTH_CLIENT_SECRET as string,
-        token_endpoint_auth_method: 'client_secret_basic',
-    }
+    logger.debug({ method: 'getUserClaims', OAUTH_ISSUER_URL: env.OAUTH_ISSUER_URL });
+    logger.debug({ method: 'getUserClaims', as });
+    logger.debug({ method: 'getUserClaims', client });
 
     const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
     if (oauth.isOAuth2Error(parameters)) {
@@ -143,7 +139,7 @@ export const useAuthHook: Handle = async ({ event, resolve }) => {
             logger.debug({ path: event.url.pathname, claims })
             event.cookies.delete(code_verifier);
             const uc = await encryptToken(claims as any);
-            logger.debug({ uc })
+            logger.debug({ path: event.url.pathname, uc })
             event.cookies.set(USER_CLAIMS_COOKIE, uc, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' });
             throw redirect(302, '/')
         }
