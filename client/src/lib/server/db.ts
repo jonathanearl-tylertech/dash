@@ -1,11 +1,11 @@
 import { env } from "$env/dynamic/private";
 import sqlite3 from "sqlite3";
-import { open } from 'sqlite'
+import { Database, open } from 'sqlite'
 import { building } from "$app/environment";
 import { logger } from "./logger";
 
-export const db = await open({
-    filename: building ? './sqlite.db' : env.DB as string,
+export const db =  building ? {} as Database : await open({
+    filename: env.DB as string,
     driver: sqlite3.cached.Database
 });
 
