@@ -51,53 +51,66 @@ export const getAuthorizationUrl = async () => {
 }
 
 export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
-    logger.debug({ method: 'getUserClaims', code_verifier, currentUrl });
+    try {
+        logger.debug({ method: 'getUserClaims', code_verifier, currentUrl });
 
-    if (!code_verifier) {
-        logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
-        throw new Error("Missing code_verifier");
-    }
-
-    logger.debug({ method: 'getUserClaims', OAUTH_ISSUER_URL: env.OAUTH_ISSUER_URL });
-    logger.debug({ method: 'getUserClaims', as });
-    logger.debug({ method: 'getUserClaims', client });
-
-    const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
-    if (oauth.isOAuth2Error(parameters)) {
-        logger.error({ message: 'failed to validate', parameters })
-        throw new Error() // Handle OAuth 2.0 redirect error
-    }
-
-    const response = await oauth.authorizationCodeGrantRequest(
-        as,
-        client,
-        parameters,
-        env.OAUTH_CLIENT_REDIRECT as string,
-        code_verifier,
-    )
-
-    let challenges: oauth.WWWAuthenticateChallenge[] | undefined
-    if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
-        for (const challenge of challenges) {
-            logger.error({ message: 'challenge failed', challenge })
+        if (!code_verifier) {
+            logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
+            throw new Error("Missing code_verifier");
         }
-        throw new Error() // Handle www-authenticate challenges as needed
-    }
+    
+        logger.debug({ method: 'getUserClaims', OAUTH_ISSUER_URL: env.OAUTH_ISSUER_URL });
+        logger.debug({ method: 'getUserClaims', as });
+        logger.debug({ method: 'getUserClaims', client });
+    
+        const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
+        if (oauth.isOAuth2Error(parameters)) {
+            logger.error({ message: 'failed to validate', parameters })
+            throw new Error() // Handle OAuth 2.0 redirect error
+        }
+    
+        logger.debug({ method: 'authorizationCodeGrantRequest', as, client, parameters, OAUTH_CLIENT_REDIRECT: env.OAUTH_CLIENT_REDIRECT, code_verifier });
+        const response = await oauth.authorizationCodeGrantRequest(
+            as,
+            client,
+            parameters,
+            env.OAUTH_CLIENT_REDIRECT as string,
+            code_verifier,
+        )
 
-    const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response)
-    if (oauth.isOAuth2Error(result)) {
-        logger.error({ message: 'processAuthorizationCodeOpenIDResponse', result })
-        throw new Error() // Handle OAuth 2.0 response body error
+        
+        logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', as, client, response })
+        let challenges: oauth.WWWAuthenticateChallenge[] | undefined
+        if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
+            for (const challenge of challenges) {
+                logger.error({ message: 'challenge failed', challenge })
+            }
+            throw new Error() // Handle www-authenticate challenges as needed
+        }
+    
+        logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', as, client, response })
+        const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response)
+        if (oauth.isOAuth2Error(result)) {
+            logger.error({ message: 'processAuthorizationCodeOpenIDResponse', result })
+            throw new Error() // Handle OAuth 2.0 response body error
+        }
+
+        logger.debug({ method: 'getValidatedIdTokenClaims', result })
+        const claims = oauth.getValidatedIdTokenClaims(result);
+        logger.debug({ method: 'getValidatedIdTokenClaims', claims })
+        return {
+            sub: claims.sub,
+            name: claims.name?.toString() ?? '',
+            email: claims.email?.toString() ?? '',
+            email_verified: claims.email_verified ?? false,
+            picture: claims.picture ?? '',
+        } as UserClaims;
+    } catch (error) {
+        logger.debug(Object.keys(error as Object));
+        logger.error({error, message: 'unable to retrieve claims'});
+        return null;
     }
-    const claims = oauth.getValidatedIdTokenClaims(result);
-    logger.info({ method: 'getValidatedIdTokenClaims', claims })
-    return {
-        sub: claims.sub,
-        name: claims.name?.toString() ?? '',
-        email: claims.email?.toString() ?? '',
-        email_verified: claims.email_verified ?? false,
-        picture: claims.picture ?? '',
-    } as UserClaims;
+   
 }
 
 export const getUser = async (event: RequestEvent) => {
