@@ -4,7 +4,7 @@ import { open } from 'sqlite'
 import { building } from "$app/environment";
 
 export const db = await open({
-    filename: building ? 'NOT_IN_USE' : env.DB as string,
+    filename: building ? './sqlite.db' : env.DB as string,
     driver: sqlite3.cached.Database
 });
 
