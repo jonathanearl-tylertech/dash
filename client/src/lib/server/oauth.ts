@@ -1,8 +1,9 @@
 import { env } from "$env/dynamic/private";
 import type { RequestEvent } from "@sveltejs/kit";
 import * as oauth from 'oauth4webapi';
-import { decryptToken, encryptToken } from "./jwe";
+import { decryptToken } from "./jwe";
 import { logger } from "./logger";
+import { building } from "$app/environment";
 
 export interface UserClaims {
     sub: string;
@@ -12,15 +13,21 @@ export interface UserClaims {
     picture: string | undefined;
 }
 
-const issuer = new URL(env.OAUTH_ISSUER_URL as string)
-const as = await oauth
-    .discoveryRequest(issuer)
-    .then(response => oauth.processDiscoveryResponse(issuer, response));
+let issuer: URL;
+let as: oauth.AuthorizationServer;
+let client: oauth.Client;
 
-const client: oauth.Client = {
-    client_id: env.OAUTH_CLIENT_ID as string,
-    client_secret: env.OAUTH_CLIENT_SECRET as string,
-    token_endpoint_auth_method: 'client_secret_basic',
+if (!building) {
+    issuer = new URL(env.OAUTH_ISSUER_URL as string)
+    as = await oauth
+        .discoveryRequest(issuer)
+        .then(response => oauth.processDiscoveryResponse(issuer, response));
+
+    client = {
+        client_id: env.OAUTH_CLIENT_ID as string,
+        client_secret: env.OAUTH_CLIENT_SECRET as string,
+        token_endpoint_auth_method: 'client_secret_basic',
+    }
 }
 
 export const getAuthorizationUrl = async () => {
