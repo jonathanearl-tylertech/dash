@@ -1,6 +1,6 @@
 - [x] env var encryption
 - [x] automate versioning
-- [ ] automate ssl (dnsk)
+- [x] automate ssl
 - [ ] automate deployment
 - [ ] add logging
 - [ ] test auth
