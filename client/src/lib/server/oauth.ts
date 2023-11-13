@@ -128,7 +128,7 @@ export const useAuthHook: Handle = async ({ event, resolve }) => {
     switch (event.url.pathname) {
         case `${base}/auth/signin`: {
             const { authorizationUrl, code_verifier } = await getAuthorizationUrl();
-            logger.debug({ authorizationUrl, code_verifier })
+            logger.debug({ path: event.url.pathname, authorizationUrl, code_verifier })
             event.cookies.set(CODE_VERIFIER_COOKIE, code_verifier, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' })
             throw redirect(302, authorizationUrl);
         }
@@ -138,9 +138,9 @@ export const useAuthHook: Handle = async ({ event, resolve }) => {
         }
         case `${base}/auth/callback`: {
             const code_verifier = event.cookies.get(CODE_VERIFIER_COOKIE) ?? '';
-            logger.debug({ code_verifier })
+            logger.debug({ path: event.url.pathname, code_verifier })
             const claims = await getUserClaims(event.url, code_verifier);
-            logger.debug({ claims })
+            logger.debug({ path: event.url.pathname, claims })
             event.cookies.delete(code_verifier);
             const uc = await encryptToken(claims as any);
             logger.debug({ uc })
