@@ -28,6 +28,6 @@ jobs:
         run: |
           # Only run if VERSION_TAG exists
           [ -z "$VERSION_TAG" ] && exit 0
-          docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$VERSION_TAG --build-arg=$VERSION_TAG client
+          docker build --tag ghcr.io/jonathanearl-tylertech/dash:latest --tag ghcr.io/jonathanearl-tylertech/dash:$VERSION_TAG --build-arg="VERSION=$VERSION_TAG" client
           docker push --all-tags ghcr.io/jonathanearl-tylertech/dash
 
