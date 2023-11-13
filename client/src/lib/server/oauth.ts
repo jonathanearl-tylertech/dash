@@ -13,34 +13,30 @@ export interface UserClaims {
     picture: string | undefined;
 }
 
+const state = oauth.generateRandomCodeVerifier();
 
 export const getAuthorizationUrl = async () => {
     const issuer = new URL(env.OAUTH_ISSUER_URL as string)
-
     const as = await oauth
         .discoveryRequest(issuer)
         .then(response => oauth.processDiscoveryResponse(issuer, response));
 
-    const client = {
-        client_id: env.OAUTH_CLIENT_ID as string,
-        client_secret: env.OAUTH_CLIENT_SECRET as string,
-        token_endpoint_auth_method: 'client_secret_basic',
-    }
-
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
         // This example assumes S256 PKCE support is signalled
         // If it isn't supported, random `state` must be used for CSRF protection.
-        throw new Error();
+        logger.error("does not support S256")
+        throw new Error("does not support S256");
     }
     const code_verifier = oauth.generateRandomCodeVerifier();
     const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
     const code_challenge_method = 'S256';
     const authorizationUrl = new URL(as.authorization_endpoint!);
-    authorizationUrl.searchParams.set('client_id', client.client_id);
+    authorizationUrl.searchParams.set('client_id', env.oidcLogin__clientId as string);
     authorizationUrl.searchParams.set('code_challenge', code_challenge);
     authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
     authorizationUrl.searchParams.set('redirect_uri', env.OAUTH_CLIENT_REDIRECT as string);
     authorizationUrl.searchParams.set('response_type', 'code');
+    authorizationUrl.searchParams.set('state', state);
     authorizationUrl.searchParams.set('scope', 'openid profile email');
     return { authorizationUrl, code_verifier };
 }
@@ -66,7 +62,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         }
 
         logger.debug({ method: 'validateAuthResponse', currentUrl });
-        const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
+        const parameters = oauth.validateAuthResponse(as, client, currentUrl, state)
         if (oauth.isOAuth2Error(parameters)) {
             logger.error({ message: 'failed to validate', parameters })
             throw new Error() // Handle OAuth 2.0 redirect error
