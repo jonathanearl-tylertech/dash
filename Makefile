@@ -19,5 +19,4 @@ version:
 	npm run semantic-release --prefix client
 
 deploy:
-	deployment/decrypt.sh
 	kubectl rollout restart deploy dash-deployment
