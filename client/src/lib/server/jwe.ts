@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import * as jose from 'jose'
+import { logger } from './logger';
 
 const ISSUER = 'dash';
 const AUDIENCE = 'dash';
@@ -30,7 +31,7 @@ export const decryptToken = async (jwt: string) => {
     }
     catch (err) {
         const error = err as { code: string, claim: string, reason: string };
-        console.info({ error, jwt })
+        logger.error({ error, jwt })
         return null;
     }
 }

@@ -5,6 +5,7 @@ import { decryptToken, encryptToken } from "./jwe";
 import { base } from '$app/paths';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
+import { logger } from "./logger";
 
 export interface UserClaims {
     sub: string;
@@ -46,6 +47,7 @@ export const getAuthorizationUrl = async () => {
 
 export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
     if (!code_verifier) {
+        logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
         throw new Error("Missing code_verifier");
     }
 
@@ -62,7 +64,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
 
     const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
     if (oauth.isOAuth2Error(parameters)) {
-        console.log('error', parameters)
+        logger.error({ message: 'failed to validate', parameters })
         throw new Error() // Handle OAuth 2.0 redirect error
     }
 
@@ -77,18 +79,18 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
     let challenges: oauth.WWWAuthenticateChallenge[] | undefined
     if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
         for (const challenge of challenges) {
-            console.log('challenge', challenge)
+            logger.error({ message: 'challenge failed', challenge })
         }
         throw new Error() // Handle www-authenticate challenges as needed
     }
 
     const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response)
     if (oauth.isOAuth2Error(result)) {
-        console.log('error', result)
+        logger.error({ message: 'processAuthorizationCodeOpenIDResponse', result })
         throw new Error() // Handle OAuth 2.0 response body error
     }
     const claims = oauth.getValidatedIdTokenClaims(result);
-    console.log({ claims })
+    logger.info({ method: 'getValidatedIdTokenClaims', claims })
     return {
         sub: claims.sub,
         name: claims.name?.toString() ?? '',
@@ -100,12 +102,12 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
 
 export const getUser = async (event: RequestEvent) => {
     const userClaimToken = event.cookies.get('uc');
-    console.info({userClaimToken, method: 'getUser'});
+    logger.info({ userClaimToken, method: 'getUser' });
     if (!userClaimToken)
         return null;
 
     const claims = await decryptToken(userClaimToken);
-    console.info({claims, method: 'getUser'});
+    logger.info({ claims, method: 'getUser' });
     if (!claims)
         return null;
 
@@ -122,10 +124,11 @@ const CODE_VERIFIER_COOKIE = 'code_verifier';
 const USER_CLAIMS_COOKIE = 'uc';
 
 export const useAuthHook: Handle = async ({ event, resolve }) => {
-    console.log('path', event.url.pathname)
+    logger.info({ path: event.url.pathname })
     switch (event.url.pathname) {
         case `${base}/auth/signin`: {
             const { authorizationUrl, code_verifier } = await getAuthorizationUrl();
+            logger.debug({ authorizationUrl, code_verifier })
             event.cookies.set(CODE_VERIFIER_COOKIE, code_verifier, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' })
             throw redirect(302, authorizationUrl);
         }
@@ -135,9 +138,12 @@ export const useAuthHook: Handle = async ({ event, resolve }) => {
         }
         case `${base}/auth/callback`: {
             const code_verifier = event.cookies.get(CODE_VERIFIER_COOKIE) ?? '';
+            logger.debug({ code_verifier })
             const claims = await getUserClaims(event.url, code_verifier);
+            logger.debug({ claims })
             event.cookies.delete(code_verifier);
             const uc = await encryptToken(claims as any);
+            logger.debug({ uc })
             event.cookies.set(USER_CLAIMS_COOKIE, uc, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' });
             throw redirect(302, '/')
         }

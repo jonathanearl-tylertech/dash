@@ -28,7 +28,6 @@ export const actions: Actions = {
             return fail(401);
 
         const form = await superValidate(event.request, LinkSchema);
-        console.log({ form })
         if (!form.valid)
             return fail(400, { form })
 
@@ -42,7 +41,6 @@ export const actions: Actions = {
         )
 
         const apps = await db.all('SELECT rowid as id, * FROM apps');
-        console.log({ apps })
 
         return {
             apps,
