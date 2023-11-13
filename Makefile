@@ -1,7 +1,7 @@
 #! /usr/bin/make
 VERSION=latest
 
-all: build publish version deploy
+all: build publish deploy
 
 build:
 	docker build --tag ghcr.io/jonathanearl-tylertech/dash:$(VERSION) client
