@@ -30,6 +30,8 @@ if (!building) {
     }
 }
 
+const timer = (ms: number) => new Promise( res => setTimeout(res, ms));
+
 export const getAuthorizationUrl = async () => {
     const redirect_uri = env.OAUTH_CLIENT_REDIRECT as string;
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
@@ -58,14 +60,14 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
             throw new Error("Missing code_verifier");
         }
-    
+
         logger.debug({ method: 'validateAuthResponse', currentUrl });
         const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
         if (oauth.isOAuth2Error(parameters)) {
             logger.error({ message: 'failed to validate', parameters })
             throw new Error() // Handle OAuth 2.0 redirect error
         }
-    
+        await timer(3000);
         logger.debug({ method: 'authorizationCodeGrantRequest', parameters, OAUTH_CLIENT_REDIRECT: env.OAUTH_CLIENT_REDIRECT, code_verifier });
         const response = await oauth.authorizationCodeGrantRequest(
             as,
@@ -75,7 +77,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             code_verifier,
         )
 
-        
+
         logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', response })
         let challenges: oauth.WWWAuthenticateChallenge[] | undefined
         if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
@@ -84,7 +86,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             }
             throw new Error() // Handle www-authenticate challenges as needed
         }
-    
+        await timer(3000);
         logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', as, client, response })
         const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response)
         if (oauth.isOAuth2Error(result)) {
@@ -104,7 +106,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         } as UserClaims;
     } catch (error) {
         logger.debug(Object.keys(error as Object));
-        logger.error({error, message: 'unable to retrieve claims'});
+        logger.error({ error, message: 'unable to retrieve claims' });
         return null;
     }
 }
