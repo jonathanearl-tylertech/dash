@@ -59,10 +59,6 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             throw new Error("Missing code_verifier");
         }
     
-        logger.debug({ method: 'getUserClaims', OAUTH_ISSUER_URL: env.OAUTH_ISSUER_URL });
-        logger.debug({ method: 'getUserClaims', as });
-        logger.debug({ method: 'getUserClaims', client });
-    
         logger.debug({ method: 'validateAuthResponse', currentUrl });
         const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
         if (oauth.isOAuth2Error(parameters)) {
