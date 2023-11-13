@@ -31,7 +31,7 @@ export const getAuthorizationUrl = async () => {
     const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
     const code_challenge_method = 'S256';
     const authorizationUrl = new URL(as.authorization_endpoint!);
-    authorizationUrl.searchParams.set('client_id', env.oidcLogin__clientId as string);
+    authorizationUrl.searchParams.set('client_id', env.OAUTH_CLIENT_ID as string);
     authorizationUrl.searchParams.set('code_challenge', code_challenge);
     authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
     authorizationUrl.searchParams.set('redirect_uri', env.OAUTH_CLIENT_REDIRECT as string);
