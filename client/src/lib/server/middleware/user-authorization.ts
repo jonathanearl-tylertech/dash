@@ -14,11 +14,11 @@ export const useUserAuthorization: Handle = async ({ event, resolve }) => {
         case `${base}/auth/signin`: {
             const { authorizationUrl, code_verifier } = await getAuthorizationUrl();
             logger.debug({ path: event.url.pathname, authorizationUrl, code_verifier })
-            event.cookies.set(CODE_VERIFIER_COOKIE, code_verifier, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' })
+            event.cookies.set(CODE_VERIFIER_COOKIE, code_verifier, { httpOnly: true, secure: !dev, path: `/`, sameSite: 'strict' })
             throw redirect(302, authorizationUrl);
         }
         case `${base}/auth/signout`: {
-            event.cookies.delete(USER_CLAIMS_COOKIE, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' })
+            event.cookies.delete(USER_CLAIMS_COOKIE, { httpOnly: true, secure: !dev, path: `/`, sameSite: 'strict' })
             throw redirect(302, '/');
         }
         case `${base}/auth/callback`: {
@@ -29,7 +29,7 @@ export const useUserAuthorization: Handle = async ({ event, resolve }) => {
             event.cookies.delete(code_verifier);
             const uc = await encryptToken(claims as any);
             logger.debug({ path: event.url.pathname, uc })
-            event.cookies.set(USER_CLAIMS_COOKIE, uc, { httpOnly: true, secure: !dev, path: `${base}/`, sameSite: 'strict' });
+            event.cookies.set(USER_CLAIMS_COOKIE, uc, { httpOnly: true, secure: !dev, path: `/`, sameSite: 'strict' });
             throw redirect(302, '/')
         }
         default: {
