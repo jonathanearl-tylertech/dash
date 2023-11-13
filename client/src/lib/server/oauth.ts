@@ -13,27 +13,20 @@ export interface UserClaims {
     picture: string | undefined;
 }
 
-let issuer: URL;
-let as: oauth.AuthorizationServer;
-let client: oauth.Client;
 
-if (!building) {
-    issuer = new URL(env.OAUTH_ISSUER_URL as string)
-    as = await oauth
+export const getAuthorizationUrl = async () => {
+    const issuer = new URL(env.OAUTH_ISSUER_URL as string)
+
+    const as = await oauth
         .discoveryRequest(issuer)
         .then(response => oauth.processDiscoveryResponse(issuer, response));
 
-    client = {
+    const client = {
         client_id: env.OAUTH_CLIENT_ID as string,
         client_secret: env.OAUTH_CLIENT_SECRET as string,
         token_endpoint_auth_method: 'client_secret_basic',
     }
-}
 
-const timer = (ms: number) => new Promise( res => setTimeout(res, ms));
-
-export const getAuthorizationUrl = async () => {
-    const redirect_uri = env.OAUTH_CLIENT_REDIRECT as string;
     if (as.code_challenge_methods_supported?.includes('S256') !== true) {
         // This example assumes S256 PKCE support is signalled
         // If it isn't supported, random `state` must be used for CSRF protection.
@@ -46,7 +39,7 @@ export const getAuthorizationUrl = async () => {
     authorizationUrl.searchParams.set('client_id', client.client_id);
     authorizationUrl.searchParams.set('code_challenge', code_challenge);
     authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
-    authorizationUrl.searchParams.set('redirect_uri', redirect_uri);
+    authorizationUrl.searchParams.set('redirect_uri', env.OAUTH_CLIENT_REDIRECT as string);
     authorizationUrl.searchParams.set('response_type', 'code');
     authorizationUrl.searchParams.set('scope', 'openid profile email');
     return { authorizationUrl, code_verifier };
@@ -54,6 +47,17 @@ export const getAuthorizationUrl = async () => {
 
 export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
     try {
+        const issuer = new URL(env.OAUTH_ISSUER_URL as string)
+
+        const as = await oauth
+            .discoveryRequest(issuer)
+            .then(response => oauth.processDiscoveryResponse(issuer, response));
+
+        const client = {
+            client_id: env.OAUTH_CLIENT_ID as string,
+            client_secret: env.OAUTH_CLIENT_SECRET as string,
+        }
+
         logger.debug({ method: 'getUserClaims', as, client, code_verifier, currentUrl });
 
         if (!code_verifier) {
@@ -67,7 +71,6 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             logger.error({ message: 'failed to validate', parameters })
             throw new Error() // Handle OAuth 2.0 redirect error
         }
-        await timer(3000);
         logger.debug({ method: 'authorizationCodeGrantRequest', parameters, OAUTH_CLIENT_REDIRECT: env.OAUTH_CLIENT_REDIRECT, code_verifier });
         const response = await oauth.authorizationCodeGrantRequest(
             as,
@@ -86,7 +89,6 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
             }
             throw new Error() // Handle www-authenticate challenges as needed
         }
-        await timer(3000);
         logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', as, client, response })
         const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response)
         if (oauth.isOAuth2Error(result)) {
