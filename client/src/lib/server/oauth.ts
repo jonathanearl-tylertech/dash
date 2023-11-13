@@ -123,8 +123,6 @@ const USER_CLAIMS_COOKIE = 'uc';
 
 export const useAuthHook: Handle = async ({ event, resolve }) => {
     console.log('path', event.url.pathname)
-    if (event.url.pathname == `${base}/health`)
-        return new Response("healthy", { status: 200 })
     switch (event.url.pathname) {
         case `${base}/auth/signin`: {
             const { authorizationUrl, code_verifier } = await getAuthorizationUrl();
