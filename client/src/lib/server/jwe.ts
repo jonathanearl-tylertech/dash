@@ -7,6 +7,7 @@ const AUDIENCE = 'dash';
 const EXPIRATION = '24h';
 
 export const encryptToken = async (payload: jose.JWTPayload) => {
+    logger.info({ method: 'encryptToken', payload })
     const { SESSION_SECRET } = env;
     const secret = jose.base64url.decode(SESSION_SECRET as string);
     const jwt = await new jose.EncryptJWT(payload)

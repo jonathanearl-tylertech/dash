@@ -52,7 +52,7 @@ export const getAuthorizationUrl = async () => {
 
 export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
     try {
-        logger.debug({ method: 'getUserClaims', code_verifier, currentUrl });
+        logger.debug({ method: 'getUserClaims', as, client, code_verifier, currentUrl });
 
         if (!code_verifier) {
             logger.error({ message: 'Missing code_verifier', code_verifier, currentUrl })
@@ -63,13 +63,14 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         logger.debug({ method: 'getUserClaims', as });
         logger.debug({ method: 'getUserClaims', client });
     
+        logger.debug({ method: 'validateAuthResponse', currentUrl });
         const parameters = oauth.validateAuthResponse(as, client, currentUrl, oauth.expectNoState)
         if (oauth.isOAuth2Error(parameters)) {
             logger.error({ message: 'failed to validate', parameters })
             throw new Error() // Handle OAuth 2.0 redirect error
         }
     
-        logger.debug({ method: 'authorizationCodeGrantRequest', as, client, parameters, OAUTH_CLIENT_REDIRECT: env.OAUTH_CLIENT_REDIRECT, code_verifier });
+        logger.debug({ method: 'authorizationCodeGrantRequest', parameters, OAUTH_CLIENT_REDIRECT: env.OAUTH_CLIENT_REDIRECT, code_verifier });
         const response = await oauth.authorizationCodeGrantRequest(
             as,
             client,
@@ -79,7 +80,7 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         )
 
         
-        logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', as, client, response })
+        logger.debug({ method: 'processAuthorizationCodeOpenIDResponse', response })
         let challenges: oauth.WWWAuthenticateChallenge[] | undefined
         if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
             for (const challenge of challenges) {
@@ -110,7 +111,6 @@ export const getUserClaims = async (currentUrl: URL, code_verifier: string) => {
         logger.error({error, message: 'unable to retrieve claims'});
         return null;
     }
-   
 }
 
 export const getUser = async (event: RequestEvent) => {
